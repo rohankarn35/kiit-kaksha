@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:kiit_kaksha/Routes/routes.dart';
 import 'package:kiit_kaksha/branchwise/secondyear.dart';
 import 'package:kiit_kaksha/branchwise/thirdyear.dart';
+import 'package:kiit_kaksha/provider/selectprovider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BranchSelect extends StatefulWidget {
@@ -61,7 +64,8 @@ class _BranchSelectState extends State<BranchSelect> {
         // title: Text('Branch Selection'),
         backgroundColor: Colors.black, // Set the app bar color
       ),
-      body: Container(
+      body: Consumer<SelectProvider>(builder: (context, value, child) {
+       return Container(
         margin: EdgeInsets.only(top: 60),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -93,9 +97,8 @@ class _BranchSelectState extends State<BranchSelect> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      setState(() {
-                        selectedYear = "2nd Year";
-                      });
+                     selectedYear = value.updatesecondyear();
+                     print(value.updatesecondyear());
                     },
                     child: Text('2nd Year'),
                     style: ButtonStyle(
@@ -107,9 +110,8 @@ class _BranchSelectState extends State<BranchSelect> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      setState(() {
-                        selectedYear = "3rd Year";
-                      });
+                     selectedYear = value.updatethirdyear();
+                   
                     },
                     child: Text('3rd Year'),
                     style: ButtonStyle(
@@ -135,9 +137,7 @@ class _BranchSelectState extends State<BranchSelect> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      setState(() {
-                        selectedBranch = "CSE";
-                      });
+                    selectedBranch = value.updateCSE();
                     },
                     child: Text('CSE'),
                     style: ButtonStyle(
@@ -149,9 +149,7 @@ class _BranchSelectState extends State<BranchSelect> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      setState(() {
-                        selectedBranch = "IT";
-                      });
+                     selectedBranch = value.updateIT();
                     },
                     child: Text('IT'),
                     style: ButtonStyle(
@@ -161,9 +159,7 @@ class _BranchSelectState extends State<BranchSelect> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      setState(() {
-                        selectedBranch = "CSSE";
-                      });
+                      selectedBranch = value.updateCSSE();
                     },
                     child: Text('CSSE'),
                     style: ButtonStyle(
@@ -175,9 +171,7 @@ class _BranchSelectState extends State<BranchSelect> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      setState(() {
-                        selectedBranch = "CSCE";
-                      });
+                     selectedBranch = value.updateCSCE();
                     },
                     child: Text('CSCE'),
                     style: ButtonStyle(
@@ -211,26 +205,31 @@ class _BranchSelectState extends State<BranchSelect> {
                         // Use the selectedYear and selectedBranch for navigation or other actions
                         if (canSubmit) {
                           if (selectedYear == "2nd Year") {
-                            Navigator.push(
+                            Navigator.pushNamed(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => SecondYear(
-                                  year: selectedYear,
-                                  branch: selectedBranch,
-                                  startFromsecondViewPage: true,
-                                ),
-                              ),
-                            );
+                                RouteManager.SecondYearSelect,
+                                          arguments: {
+                                            "year": selectedYear,
+                                            "branch": selectedBranch,
+                                            "startFromsecondViewPage": true,
+                                                
+                                          });
+                              // MaterialPageRoute(
+                              //   builder: (context) => SecondYear(
+                              //     year: selectedYear,
+                              //     branch: selectedBranch,
+                              //     startFromsecondViewPage: true,
+                              //   ),
+                              // ),
+                            // );
                           } else if (selectedYear == "3rd Year") {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ThirdYear(
-                                  year: selectedYear,
-                                  branch: selectedBranch,
-                                  startFromViewPage: true,
-                                ),
-                              ),
+                            Navigator.pushNamed(
+                              context, RouteManager.ThirdYearSelect,arguments: {
+                                 "year": selectedYear,
+                                            "branch": selectedBranch,
+                                            "startFromViewPage": true,
+                              }
+                              
                             );
                           }
                         } else {
@@ -251,7 +250,8 @@ class _BranchSelectState extends State<BranchSelect> {
             ],
           ),
         ),
-      ),
+      );
+      },)
     )
         );
   }

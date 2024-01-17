@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kiit_kaksha/list.dart';
+import 'package:kiit_kaksha/Routes/routes.dart';
+import 'package:kiit_kaksha/provider/thirdyearselect.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/dropmenu.dart';
@@ -36,6 +38,8 @@ class _ThirdYearState extends State<ThirdYear> {
     updateDropdownItems();
   }
 
+ 
+
   void updateDropdownItems() {
     if (widget.branch == "CSE") {
       items1 = List.generate(39, (index) => "CSE-${index + 1}");
@@ -62,14 +66,7 @@ class _ThirdYearState extends State<ThirdYear> {
     dropdownValue3 = null;
   }
 
-  Future<void> _savePreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    prefs.setString('dropdownValue1', dropdownValue1 ?? '');
-    prefs.setString('dropdownValue2', dropdownValue2 ?? '');
-    prefs.setString('dropdownValue3', dropdownValue3 ?? '');
-    prefs.setBool('startFromViewPage', widget.startFromViewPage);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +82,8 @@ class _ThirdYearState extends State<ThirdYear> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: Consumer<ThirdYearSelectProvider>(builder: (context, value, child){
+           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Center(
@@ -101,23 +99,18 @@ class _ThirdYearState extends State<ThirdYear> {
               ),
               buildDropdown(context,"Core Section", items1, dropdownValue1,
                   (String? newValue) {
-                setState(() {
-                  dropdownValue1 = newValue;
-                });
+                  dropdownValue1 = value.updateDropDown1(newValue!);
+
               }),
               SizedBox(height: 16.0),
               buildDropdown(context,"Elective 1", items2, dropdownValue2,
                   (String? newValue) {
-                setState(() {
-                  dropdownValue2 = newValue;
-                });
+                 dropdownValue2 = value.updateDropDown2(newValue!);
               }),
               SizedBox(height: 16.0),
               buildDropdown(context, "Elective 2", items3, dropdownValue3,
                   (String? newValue) {
-                setState(() {
-                  dropdownValue3 = newValue;
-                });
+                 dropdownValue3 = value.updateDropDown3(newValue!);
               }),
               SizedBox(height: 32.0),
               ElevatedButton(
@@ -125,34 +118,38 @@ class _ThirdYearState extends State<ThirdYear> {
                         dropdownValue2 != null &&
                         dropdownValue3 != null)
                     ? () async {
-                        await _savePreferences();
-
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Views(
-                              section1: dropdownValue1!,
-                              section2: dropdownValue2!,
-                              section3: dropdownValue3!,
-                              startfromviewpage: widget.startFromViewPage,
-                            ),
-                          ),
+                        Provider.of<ThirdYearSelectProvider>(context,listen: false).savePreferences(widget.startFromViewPage);
+                        Navigator.pushReplacementNamed(
+                          context, RouteManager.ThirdYearinfo, arguments: {
+                            'dropvalue1': dropdownValue1,
+                            'dropvalue2': dropdownValue2,
+                            'dropvalue3': dropdownValue3,
+                            'startfromviewpage': widget.startFromViewPage
+                          }
+                          // MaterialPageRoute(
+                          //   builder: (context) => Views(
+                          //     section1: dropdownValue1!,
+                          //     section2: dropdownValue2!,
+                          //     section3: dropdownValue3!,
+                          //     startfromviewpage: widget.startFromViewPage,
+                          //   ),
+                          // ),
                         );
                       }
                     : null,
-                style: ElevatedButton.styleFrom(
-                  primary: (dropdownValue1 != null &&
-                          dropdownValue2 != null &&
-                          dropdownValue3 != null)
-                      ? Colors.green
-                      : Colors.redAccent, // Set the button color based on conditions
+                style: ButtonStyle(
+                   backgroundColor: MaterialStateProperty.all((dropdownValue1 != null &&
+                        dropdownValue2 != null &&
+                        dropdownValue3 != null)? Colors.green:Colors.grey)
                 ),
                 child: Text("Submit"),
               ),
             ],
-          ),
+          );
+          }
         ),
       ),
+    )
     );
   }
 

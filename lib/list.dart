@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:kiit_kaksha/Notification/notificationservice.dart';
 import 'package:kiit_kaksha/about.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,9 +33,11 @@ class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
+  
     super.initState();
     _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(_handleTabSelection);
+    _schedulenotificationforweek();
 
     // Load data from SharedPreferences
     loadWeeklySchedule();
@@ -121,10 +124,7 @@ class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
     }
 
     try {
-      final response = await http.get(Uri.parse(apiUrl));
-
-      // print(response.body);
-
+      await http.get(Uri.parse(apiUrl)).then((response){
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
 
@@ -136,13 +136,15 @@ class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
 
           // Save data to SharedPreferences for offline use
           prefs.setString(dayKey, response.body);
+
         }
-      } else {
-        throw Exception('Failed to load schedule');
       }
+      });
+      // } else {
+      //   throw Exception('Failed to load schedule');
+      // }
     } catch (e) {
       print(e);
-      // Show a snackbar with an error message
       ScaffoldMessenger.of(context).showSnackBar(
          SnackBar(
           backgroundColor: Colors.red,
@@ -153,6 +155,20 @@ class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
       );
     }
   }
+
+Future<void> _schedulenotificationforweek() async {
+  if (weeklySchedule.isEmpty) {
+    await fetchWeeklySchedule();
+  }
+
+  shownotification(weeklySchedule);
+
+
+}
+
+
+
+
 
   String _getDayKey(int index) {
     switch (index) {
@@ -175,7 +191,7 @@ class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
 
   List<double> _parseTime(String timeString) {
     if (timeString == '4:30-6') {
-      return [16.5, 18];
+      return [4.5, 6];
     }
 
     final List<String> timeParts = timeString.split('-');

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kiit_kaksha/main.dart';
 import 'package:kiit_kaksha/select.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../dialogbox/showdeveloper.dart';
@@ -267,6 +268,7 @@ class _SecondyearaboutState extends State<Secondyearabout> {
   Future<void> clearLocalData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    await notificationsPlugin.cancelAll();
   }
 
   void showReportDialog(BuildContext context) {

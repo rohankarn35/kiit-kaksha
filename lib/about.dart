@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:kiit_kaksha/main.dart';
+import 'package:kiit_kaksha/provider/thirdyearselect.dart';
 import 'package:kiit_kaksha/select.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dialogbox/showdeveloper.dart';
-// import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({Key? key}) : super(key: key);
@@ -13,24 +15,28 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
-  late String section1 = "";
-  late String section2 = "";
-  late String section3 = "";
+  String section1 = "";
+  String section2 = "";
+  String section3 = "";
 
-  void getValues() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  // ThirdYearSelectProvider mydata = Provider.of<ThirdYearSelectProvider>(context,listen: false);
 
-    setState(() {
-      section1 = prefs.getString("dropdownValue1") ?? " ";
-      section2 = prefs.getString("dropdownValue2") ?? " ";
-      section3 = prefs.getString("dropdownValue3") ?? " ";
-    });
-  }
+  // void getValues() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  //   section1 = prefs.getString("dropdownValue1") ?? " ";
+  //   section2 = prefs.getString("dropdownValue2") ?? " ";
+  //   section3 = prefs.getString("dropdownValue3") ?? " ";
+  // }
 
   @override
   void initState() {
     super.initState();
-    getValues();
+
+    // WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      // This callback will be called after the build method is complete
+      Provider.of<ThirdYearSelectProvider>(context,listen: false).getSharedPrefencesValue();
+    // });
   }
 
   @override
@@ -38,9 +44,7 @@ class _AboutPageState extends State<AboutPage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-         iconTheme: IconThemeData(
-          color: Colors.white
-        ),
+        iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Colors.black,
         // title: Text('About Us'),
       ),
@@ -57,10 +61,13 @@ class _AboutPageState extends State<AboutPage> {
                     const SizedBox(
                       height: 40,
                     ),
-                    const CircleAvatar(
-                      radius: 60,
-                      backgroundImage: AssetImage("assets/logo.png"),
-                      backgroundColor: Color.fromARGB(255, 9, 148, 14),
+                    Hero(
+                      tag: 'logo',
+                      child: const CircleAvatar(
+                        radius: 60,
+                        backgroundImage: AssetImage("assets/logo.png"),
+                        backgroundColor: Color.fromARGB(255, 9, 148, 14),
+                      ),
                     ),
                     const SizedBox(height: 16),
                     RichText(
@@ -86,19 +93,25 @@ class _AboutPageState extends State<AboutPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text(
-                      'Core Section: $section1',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Text(
-                      'Department Elective 1: $section2',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Text(
-                      'Department Elective 2: $section3',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    const SizedBox(height: 40),
+                    Container(
+                        child: Consumer<ThirdYearSelectProvider>(
+                            builder: (context, value, child) => Column(
+                                  children: [
+                                    Text(
+                                      'Core Section: ${value.section1}',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    Text(
+                                      'Department Elective 1: ${value.section2}',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    Text(
+                                      'Department Elective 2: ${value.section3}',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ))),
+                    SizedBox(height: 40),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
@@ -158,8 +171,8 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
-  Widget buildAboutContainer(
-      BuildContext context, String title, String subtitle, VoidCallback onPressed, Color color) {
+  Widget buildAboutContainer(BuildContext context, String title,
+      String subtitle, VoidCallback onPressed, Color color) {
     return Container(
       height: 110,
       width: 200,
@@ -199,8 +212,8 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
-  Widget buildResetContainer(
-      BuildContext context, String title, String subtitle, VoidCallback onPressed, Color color) {
+  Widget buildResetContainer(BuildContext context, String title,
+      String subtitle, VoidCallback onPressed, Color color) {
     return Container(
       height: 110,
       width: 200,
@@ -240,8 +253,8 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
-  Widget buildReportContainer(
-      BuildContext context, String title, String subtitle, VoidCallback onPressed, Color color) {
+  Widget buildReportContainer(BuildContext context, String title,
+      String subtitle, VoidCallback onPressed, Color color) {
     return Container(
       height: 110,
       width: 200,
@@ -283,7 +296,6 @@ class _AboutPageState extends State<AboutPage> {
 
   // Function to show the developer information dialog
 
-
   void showResetConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -301,7 +313,8 @@ class _AboutPageState extends State<AboutPage> {
             TextButton(
               onPressed: () async {
                 await clearLocalData();
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => BranchSelect()));
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => BranchSelect()));
               },
               child: Text('Yes'),
             ),
@@ -314,6 +327,10 @@ class _AboutPageState extends State<AboutPage> {
   Future<void> clearLocalData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    notificationsPlugin.cancelAll().then((value) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      duration: Duration(seconds: 3),
+      backgroundColor: Colors.green,
+      content: Center(child: Text("Data Cleared")))));
   }
 
   void showReportDialog(BuildContext context) {
@@ -325,7 +342,8 @@ class _AboutPageState extends State<AboutPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Please mail your problem to rohankarn35@gmail.com or connectkiit@gmail.com'),
+              Text(
+                  'Please mail your problem to rohankarn35@gmail.com or connectkiit@gmail.com'),
               SizedBox(height: 10),
             ],
           ),

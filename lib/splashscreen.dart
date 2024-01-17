@@ -20,13 +20,13 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     // Start the animation after a delay
-    Timer(Duration(seconds: 1), () {
+    Timer(Duration(milliseconds: 500), () {
       setState(() {
         showAnimation = true;
       });
 
       // Redirect to another page after 3 seconds
-      Timer(Duration(seconds: 2), () {
+      Timer(Duration(seconds: 800), () {
         _redirectToPage();
       });
     });

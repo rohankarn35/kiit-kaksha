@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:kiit_kaksha/Notification/notificationservice.dart';
 import 'package:kiit_kaksha/about.dart';
 import 'package:kiit_kaksha/branchwise/secondyearabout.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,6 +36,7 @@ class _SecondYearViewsState extends State<SecondYearViews> with SingleTickerProv
     _tabController.addListener(_handleTabSelection);
 
     // _initializeSharedPreferences();
+    schedulenotificationforweek();
 
     loadWeeklySchedule();
     fetchWeeklySchedule();
@@ -55,7 +57,16 @@ class _SecondYearViewsState extends State<SecondYearViews> with SingleTickerProv
         weeklySchedule[initialDayKey]!.isEmpty) {
       fetchDataForDay(initialDayKey);
     }
+  }Future<void> schedulenotificationforweek() async {
+  if (weeklySchedule.isEmpty) {
+    await fetchWeeklySchedule();
   }
+
+  shownotification(weeklySchedule);
+
+
+}
+
 
   void _handleTabSelection() {
     if (_tabController.indexIsChanging) {
@@ -170,6 +181,15 @@ class _SecondYearViewsState extends State<SecondYearViews> with SingleTickerProv
     }
   }
 
+Future<void> _schedulenotificationforweek() async {
+  if (weeklySchedule.isEmpty) {
+    await fetchWeeklySchedule();
+  }
+
+  shownotification(weeklySchedule);
+
+
+}
 
 
   @override
