@@ -211,7 +211,7 @@ class _BranchSelectState extends State<BranchSelect> {
                                           arguments: {
                                             "year": selectedYear,
                                             "branch": selectedBranch,
-                                            "startFromsecondViewPage": true,
+                                            "startFromSecondViewPage": true,
                                                 
                                           });
                               // MaterialPageRoute(

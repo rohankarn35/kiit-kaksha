@@ -20,19 +20,20 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     // Start the animation after a delay
-    Timer(Duration(milliseconds: 500), () {
+    Timer(Duration(milliseconds: 400), () {
       setState(() {
         showAnimation = true;
       });
 
       // Redirect to another page after 3 seconds
-      Timer(Duration(seconds: 800), () {
+      Timer(Duration(milliseconds: 900), () {
         _redirectToPage();
       });
     });
   }
 
-  void _redirectToPage() async {
+void _redirectToPage() async {
+  try {
     // Check shared preferences values
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool startFromViewPage = prefs.getBool('startFromViewPage') ?? false;
@@ -72,7 +73,13 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
       );
     }
+  } catch (e) {
+    // Handle exceptions here
+    print('Error in _redirectToPage: $e');
+    // You can show an error message to the user or take other appropriate actions
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

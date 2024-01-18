@@ -23,7 +23,7 @@ void main() async {
         InitializationSettings(android: androidInitializationSettings);
     bool? initialized =
         await notificationsPlugin.initialize(initializationSettings);
-    print("Notification setting $initialized");
+    // print("Notification setting $initialized");
     runApp(MyApp());
   } catch (error) {
     print('Error loading .env file: ${error.toString()}');

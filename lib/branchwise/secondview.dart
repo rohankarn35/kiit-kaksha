@@ -16,7 +16,7 @@ class SecondYearViews extends StatefulWidget {
   const SecondYearViews({
     Key? key,
     required this.section1,
-    this.startfromviewpage = false,
+    this.startfromviewpage = true,
   }) : super(key: key);
 
  @override

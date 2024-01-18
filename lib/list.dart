@@ -105,66 +105,72 @@ class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
     }
   }
 
-  Future<void> fetchDataForDay(String dayKey) async {
-    final apiUrl =
-        '${dotenv.env['URL_THIRD']}${widget.section1}&section2=${widget.section2}&section3=${widget.section3}';
+Future<void> fetchDataForDay(String dayKey) async {
+  final apiUrl =
+      '${dotenv.env['URL_THIRD']}${widget.section1}&section2=${widget.section2}&section3=${widget.section3}';
 
-    // Use SharedPreferences to check if data is available offline
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.containsKey(dayKey)) {
-      final storedData = prefs.getString(dayKey);
-      if (storedData != null) {
-        final Map<String, dynamic> data = jsonDecode(storedData);
+  // Use SharedPreferences to check if data is available offline
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  if (prefs.containsKey(dayKey)) {
+    final storedData = prefs.getString(dayKey);
+    if (storedData != null) {
+      final Map<String, dynamic> data = jsonDecode(storedData);
+      setState(() {
+        weeklySchedule[dayKey] =
+            List<Map<String, dynamic>>.from(data[dayKey]);
+      });
+      return;
+    }
+  }
+
+  try {
+    final response = await http.get(Uri.parse(apiUrl));
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      if (data.containsKey(dayKey)) {
         setState(() {
           weeklySchedule[dayKey] =
               List<Map<String, dynamic>>.from(data[dayKey]);
         });
-        return;
+
+        // Save data to SharedPreferences for offline use
+        prefs.setString(dayKey, response.body);
       }
     }
-
-    try {
-      await http.get(Uri.parse(apiUrl)).then((response){
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body);
-
-        if (data.containsKey(dayKey)) {
-          setState(() {
-            weeklySchedule[dayKey] =
-                List<Map<String, dynamic>>.from(data[dayKey]);
-          });
-
-          // Save data to SharedPreferences for offline use
-          prefs.setString(dayKey, response.body);
-
-        }
-      }
-      });
-      // } else {
-      //   throw Exception('Failed to load schedule');
-      // }
-    } catch (e) {
-      print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(
-              'An error occurred. Click on i button and reset the app'),
-          duration: Duration(seconds: 5),
-        ),
-      );
-    }
+  } catch (e) {
+    print(e);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(
+            'An error occurred. Click on i button and reset the app'),
+        duration: Duration(seconds: 5),
+      ),
+    );
   }
+}
 
 Future<void> _schedulenotificationforweek() async {
-  if (weeklySchedule.isEmpty) {
-    await fetchWeeklySchedule();
+  try {
+    if (weeklySchedule.isEmpty) {
+      await fetchWeeklySchedule();
+    }
+
+    shownotification(weeklySchedule);
+  } catch (e) {
+    print(e);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(
+            'An error occurred while scheduling notifications'),
+        duration: Duration(seconds: 5),
+      ),
+    );
   }
-
-  shownotification(weeklySchedule);
-
-
 }
+
 
 
 

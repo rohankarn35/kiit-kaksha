@@ -4,6 +4,7 @@ import 'package:kiit_kaksha/about.dart';
 import 'package:kiit_kaksha/branchwise/secondyear.dart';
 import 'package:kiit_kaksha/branchwise/thirdyear.dart';
 import 'package:kiit_kaksha/list.dart';
+import 'package:kiit_kaksha/select.dart';
 import 'package:kiit_kaksha/splashscreen.dart';
 
 class RouteManager {
@@ -16,7 +17,7 @@ class RouteManager {
   static Route<dynamic> generateRoutes(RouteSettings settings) {
     switch (settings.name) {
       case Home:
-        return MaterialPageRoute(builder: (context) => const SplashScreen());
+        return MaterialPageRoute(builder: (context) =>  SplashScreen());
 case SecondYearSelect:
   final Map<String, dynamic>? arguments = settings.arguments as Map<String, dynamic>?;
   if (arguments != null) {

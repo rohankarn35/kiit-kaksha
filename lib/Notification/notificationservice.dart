@@ -1,38 +1,55 @@
+import 'dart:typed_data';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kiit_kaksha/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart';
 
-shownotification(Map<String, List<Map<String, dynamic>>> scheduleDay) async {
+void shownotification(Map<String, List<Map<String, dynamic>>> scheduleDay) async {
+
+  // shownotificationtest();
   try {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    final AndroidFlutterLocalNotificationsPlugin?
-        androidFlutterLocalNotificationsPlugin =
-        notificationsPlugin.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+     final AndroidFlutterLocalNotificationsPlugin? androidNotificationsPlugin =
+      notificationsPlugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
 
-    if (androidFlutterLocalNotificationsPlugin != null) {
-      final bool? hasPermission =
-          await androidFlutterLocalNotificationsPlugin.requestNotificationsPermission();
+  if (androidNotificationsPlugin != null) {
+    final bool? hasPermission =
+        await androidNotificationsPlugin.requestNotificationsPermission();
 
-      if (hasPermission == null || !hasPermission) {
-        print("Notification declined");
-      } else {
+    if (hasPermission == null || !hasPermission) {
+      // Permissions not granted, handle accordingly (e.g., show a message to the user)
+      print('Notification permissions not granted.');
+    } else {
+      // Permissions granted, proceed with scheduling notification
+      AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+        "notificationtest",
+        "My Notification",
+        priority: Priority.max,
+        importance: Importance.max,
+      );
+      NotificationDetails notificationDetails = NotificationDetails(
+        android: androidDetails,
+      );
+      String? timeofday = "";
         final currentDayIndex = DateTime.now().weekday;
         final String dayKey = getDayKey(currentDayIndex - 1);
         print(currentDayIndex);
         print(dayKey);
 
         // Check if notifications have already been scheduled for the current day
-        final bool notificationsScheduled = prefs.getBool('$dayKey-notifications-scheduled') ?? false;
+        final bool notificationsScheduled =
+            prefs.getBool('$dayKey-notifications-scheduled') ?? false;
 
         if (!notificationsScheduled) {
           int startHour = 0, startMinute = 0;
 
           if (scheduleDay[dayKey]!.isNotEmpty) {
-            for (int i = 0; i < scheduleDay[dayKey]!.length; i++) {
+            DateTime now = DateTime.now();
+
+            for (int i = 1; i < scheduleDay[dayKey]!.length; i++) {
               String myTime = scheduleDay[dayKey]![i]["time"];
               double startTime = parseTime(myTime);
               List<int> timeStart = getTime(startTime);
@@ -41,41 +58,44 @@ shownotification(Map<String, List<Map<String, dynamic>>> scheduleDay) async {
               String subjectName = scheduleDay[dayKey]![i]["subject"];
               String roomNo = scheduleDay[dayKey]![i]["roomNo"];
 
-              DateTime dateTime = DateTime.now();
               DateTime notificationTime = DateTime(
-                dateTime.year,
-                dateTime.month,
-                dateTime.day,
+                now.year,
+                now.month,
+                now.day,
                 startHour,
                 startMinute,
               );
+              // DateTime notificationTime =
+              //     DateTime.now().add(Duration(seconds: 5));
 
-              AndroidNotificationDetails androidNotificationDetails =
-                  AndroidNotificationDetails(
-                "Notifications",
-                "Kaksha Notification",
-                priority: Priority.max,
-                importance: Importance.min,
-                visibility: NotificationVisibility.public,
-              );
+              // Skip scheduling if the notification time has already passed
+              if (now.isAfter(notificationTime)) {
+                print(
+                    "Skipped scheduling for $subjectName as the time has already passed");
+                continue;
+              }
 
-              NotificationDetails notificationDetails =
-                  NotificationDetails(android: androidNotificationDetails);
+              
 
-              await notificationsPlugin.zonedSchedule(
-                0,
-                "$subjectName class in $roomNo",
-                "Class starting in 5 minutes",
-                TZDateTime.from(notificationTime, local),
-                notificationDetails,
-                uiLocalNotificationDateInterpretation:
-                    UILocalNotificationDateInterpretation.wallClockTime,
-              );
+              await notificationsPlugin
+                  .zonedSchedule(
+                    i,
+                    "$subjectName class in $roomNo",
+                    "Class starting in 5 minutes",
+                    TZDateTime.from(notificationTime, local),
+                    notificationDetails,
+                    uiLocalNotificationDateInterpretation:
+                        UILocalNotificationDateInterpretation.wallClockTime,
+                  )
+                  .then((value) => print(
+                      "Notification scheduled for ${subjectName} at ${notificationTime} for id ${i}"));
             }
 
             // Mark notifications as scheduled for the current day
-            prefs.setBool('$dayKey-notifications-scheduled', true);
-          } else {
+            // prefs.setBool('$dayKey-notifications-scheduled', true);
+          } 
+          
+          else {
             DateTime current = DateTime.now();
             DateTime notificationTime = DateTime(
               current.year,
@@ -89,7 +109,10 @@ shownotification(Map<String, List<Map<String, dynamic>>> scheduleDay) async {
               "Notifications",
               "Kaksha Notification",
               priority: Priority.max,
-              importance: Importance.min,
+              importance: Importance.max,
+              enableVibration: true,
+              vibrationPattern: Int64List.fromList(
+                  [0, 500, 1000, 500, 1000, 500]), // Example pattern
             );
 
             NotificationDetails notificationDetails =
@@ -106,9 +129,10 @@ shownotification(Map<String, List<Map<String, dynamic>>> scheduleDay) async {
             );
 
             // Mark notifications as scheduled for the current day
-            prefs.setBool('$dayKey-notifications-scheduled', true);
+            // prefs.setBool('$dayKey-notifications-scheduled', true);
           }
-        } else {
+        } 
+        else {
           print("Notifications already scheduled for today");
         }
       }
@@ -125,7 +149,7 @@ double parseTime(String timeString) {
 
   final List<String> timeParts = timeString.split('-');
   final double startTime = double.parse(timeParts[0]);
-  final double endTime = double.parse(timeParts[1]);
+  // final double endTime = double.parse(timeParts[1]);SS
 
   return startTime;
 }
@@ -167,3 +191,4 @@ String getDayKey(int index) {
       throw Exception("Invalid day index");
   }
 }
+
