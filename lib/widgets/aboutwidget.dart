@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-  Widget buildAboutContainer(
+  Widget buildAContainer(
       BuildContext context, String title, String subtitle, VoidCallback onPressed, Color color) {
     return Container(
       height: 110,

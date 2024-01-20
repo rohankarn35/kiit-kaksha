@@ -5,6 +5,7 @@ import 'package:kiit_kaksha/Routes/routes.dart';
 import 'package:kiit_kaksha/provider/listprovider.dart';
 import 'package:kiit_kaksha/provider/selectprovider.dart';
 import 'package:kiit_kaksha/provider/thirdyearselect.dart';
+import 'package:kiit_kaksha/select.dart';
 import 'package:kiit_kaksha/splashscreen.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest_10y.dart';

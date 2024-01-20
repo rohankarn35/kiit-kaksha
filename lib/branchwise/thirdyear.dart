@@ -31,6 +31,13 @@ class _ThirdYearState extends State<ThirdYear> {
   String? dropdownValue3;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final TextEditingController textEditingController = TextEditingController();
+
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -78,78 +85,96 @@ class _ThirdYearState extends State<ThirdYear> {
         ),
         backgroundColor: Colors.black,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Consumer<ThirdYearSelectProvider>(builder: (context, value, child){
-           return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                  child: Text(
-                "Select Core and Elective Section",
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              )),
-              SizedBox(
-                height: 30,
-              ),
-              buildDropdown(context,"Core Section", items1, dropdownValue1,
-                  (String? newValue) {
-                  dropdownValue1 = value.updateDropDown1(newValue!);
-
-              }),
-              SizedBox(height: 16.0),
-              buildDropdown(context,"Elective 1", items2, dropdownValue2,
-                  (String? newValue) {
-                 dropdownValue2 = value.updateDropDown2(newValue!);
-              }),
-              SizedBox(height: 16.0),
-              buildDropdown(context, "Elective 2", items3, dropdownValue3,
-                  (String? newValue) {
-                 dropdownValue3 = value.updateDropDown3(newValue!);
-              }),
-              SizedBox(height: 32.0),
-              ElevatedButton(
-                onPressed: (dropdownValue1 != null &&
-                        dropdownValue2 != null &&
-                        dropdownValue3 != null)
-                    ? () async {
-                        Provider.of<ThirdYearSelectProvider>(context,listen: false).savePreferences(widget.startFromViewPage);
-                        Navigator.pushReplacementNamed(
-                          context, RouteManager.ThirdYearinfo, arguments: {
-                            'dropvalue1': dropdownValue1,
-                            'dropvalue2': dropdownValue2,
-                            'dropvalue3': dropdownValue3,
-                            'startfromviewpage': widget.startFromViewPage
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Consumer<ThirdYearSelectProvider>(builder: (context, value, child){
+             return SingleChildScrollView(
+               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                // mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: 50,),
+                  Center(
+                      child: Text(
+                    "Select Core and Elective Section",
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  )),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  buildDropdown(context,"Core Section", items1, dropdownValue1, 
+                      (String? newValue) {
+                      dropdownValue1 = value.updateDropDown1(newValue!);
+                       
+                  },
+                  textEditingController
+                  ),
+                  SizedBox(height: 20),
+                  buildDropdown(context,"Elective 1", items2, dropdownValue2,
+                      (String? newValue) {
+                     dropdownValue2 = value.updateDropDown2(newValue!);
+                  },
+                  textEditingController,
+                  
+                  ),
+                  SizedBox(height: 20),
+                  buildDropdown(context, "Elective 2", items3, dropdownValue3,
+                      (String? newValue) {
+                     dropdownValue3 = value.updateDropDown3(newValue!);
+                  },
+                  textEditingController
+                  
+                  ),
+                  SizedBox(height: 70),
+                  ElevatedButton(
+                    onPressed: (dropdownValue1 != null &&
+                            dropdownValue2 != null &&
+                            dropdownValue3 != null)
+                        ? () async {
+                            Provider.of<ThirdYearSelectProvider>(context,listen: false).savePreferences(widget.startFromViewPage);
+                            Navigator.pushReplacementNamed(
+                              context, RouteManager.ThirdYearinfo, arguments: {
+                                'dropvalue1': dropdownValue1,
+                                'dropvalue2': dropdownValue2,
+                                'dropvalue3': dropdownValue3,
+                                'startfromviewpage': widget.startFromViewPage
+                              }
+                              // MaterialPageRoute(
+                              //   builder: (context) => Views(
+                              //     section1: dropdownValue1!,
+                              //     section2: dropdownValue2!,
+                              //     section3: dropdownValue3!,
+                              //     startfromviewpage: widget.startFromViewPage,
+                              //   ),
+                              // ),
+                            );
                           }
-                          // MaterialPageRoute(
-                          //   builder: (context) => Views(
-                          //     section1: dropdownValue1!,
-                          //     section2: dropdownValue2!,
-                          //     section3: dropdownValue3!,
-                          //     startfromviewpage: widget.startFromViewPage,
-                          //   ),
-                          // ),
-                        );
-                      }
-                    : null,
-                style: ButtonStyle(
-                   backgroundColor: MaterialStateProperty.all((dropdownValue1 != null &&
-                        dropdownValue2 != null &&
-                        dropdownValue3 != null)? Colors.green:Colors.grey)
-                ),
-                child: Text("Submit"),
-              ),
-            ],
-          );
-          }
+                        : null,
+                    style: ButtonStyle(
+                       backgroundColor: MaterialStateProperty.all((dropdownValue1 != null &&
+                            dropdownValue2 != null &&
+                            dropdownValue3 != null)? Colors.green:Colors.grey),
+                    ),
+                    child: Text("Submit",style: TextStyle(color: (dropdownValue1 != null &&
+                            dropdownValue2 != null &&
+                            dropdownValue3 != null)? Colors.white:Color.fromARGB(255, 3, 14, 77))),
+                  ),
+                ],
+                           ),
+             );
+            }
+          ),
         ),
-      ),
-    )
+            ),
+      )
     );
   }
 

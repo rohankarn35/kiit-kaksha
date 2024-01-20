@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:kiit_kaksha/about.dart';
 import 'package:kiit_kaksha/branchwise/secondyear.dart';
+import 'package:kiit_kaksha/branchwise/secondyearabout.dart';
 import 'package:kiit_kaksha/branchwise/thirdyear.dart';
 import 'package:kiit_kaksha/list.dart';
 import 'package:kiit_kaksha/select.dart';
@@ -13,6 +14,7 @@ class RouteManager {
   static const String ThirdYearSelect = "./thirdyear";
   static const String ThirdYearinfo = "./thirdyearinfo";
   static const String Thirdyearabout = "./thirdyearabout";
+  static const String SecondYearabout = "./secondyearabout";
 
   static Route<dynamic> generateRoutes(RouteSettings settings) {
     switch (settings.name) {
@@ -59,7 +61,26 @@ if(arguments!=null){
 throw const FormatException("Wrong Route Format");
 
 case Thirdyearabout:
-return MaterialPageRoute(builder: (context)=> AboutPage());
+final Map<String, dynamic>? arguments = settings.arguments as Map<String, dynamic>?;
+
+if(arguments!=null){
+  final Map<String, List<Map<String, dynamic>>> weeklySchedule = arguments["schedule"];
+
+return MaterialPageRoute(builder: (context)=> AboutPage(weeklySchedule: weeklySchedule,));
+}
+throw const FormatException("Wrong Route Format"); 
+
+case SecondYearabout:
+final Map<String, dynamic>? arguments = settings.arguments as Map<String, dynamic>?;
+
+if(arguments!=null){
+  final Map<String, List<Map<String, dynamic>>> weeklySchedule = arguments["schedule"];
+
+return MaterialPageRoute(builder: (context)=> Secondyearabout(weeklySchedule: weeklySchedule,));
+}
+throw const FormatException("Wrong Route Format"); 
+
+
   default:
         throw const FormatException("Wrong Route format");
     }

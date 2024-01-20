@@ -4,10 +4,13 @@ import 'package:url_launcher/url_launcher.dart';
 Widget showmedia(String url, String filepath) {
   return InkWell(
     onTap: () async {
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
-        throw 'Could not launch $url';
+      try{
+      final Uri uri = Uri.parse(url); // Ensure a valid Uri object
+      // if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+  //  /   } 
+      }catch(e){
+        print(e.toString());
       }
     },
     child: CircleAvatar(

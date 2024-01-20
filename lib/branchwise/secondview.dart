@@ -1,12 +1,15 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:kiit_kaksha/Notification/notificationservice.dart';
+import 'package:kiit_kaksha/Routes/routes.dart';
 import 'package:kiit_kaksha/about.dart';
 import 'package:kiit_kaksha/branchwise/secondyearabout.dart';
+import 'package:kiit_kaksha/widgets/builddaily.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SecondYearViews extends StatefulWidget {
@@ -19,11 +22,12 @@ class SecondYearViews extends StatefulWidget {
     this.startfromviewpage = true,
   }) : super(key: key);
 
- @override
+  @override
   State<SecondYearViews> createState() => _SecondYearViewsState();
 }
 
-class _SecondYearViewsState extends State<SecondYearViews> with SingleTickerProviderStateMixin {
+class _SecondYearViewsState extends State<SecondYearViews>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   Map<String, List<Map<String, dynamic>>> weeklySchedule = {};
   // late SharedPreferences prefs;
@@ -32,11 +36,11 @@ class _SecondYearViewsState extends State<SecondYearViews> with SingleTickerProv
   void initState() {
     super.initState();
 
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(_handleTabSelection);
 
     // _initializeSharedPreferences();
-    schedulenotificationforweek();
+    _schedulenotificationforweek();
 
     loadWeeklySchedule();
     fetchWeeklySchedule();
@@ -44,48 +48,44 @@ class _SecondYearViewsState extends State<SecondYearViews> with SingleTickerProv
     final currentDayIndex = DateTime.now().weekday;
     int initialTabIndex;
 
-    if (currentDayIndex == DateTime.sunday) {
-      initialTabIndex = 0; // Monday
-    } else {
       initialTabIndex = currentDayIndex - 1; // Adjust for zero-based indexing
-    }
-
+ 
     _tabController.index = initialTabIndex;
 
-    final initialDayKey = _getDayKey(initialTabIndex);
+    final initialDayKey = getDayKey(initialTabIndex);
     if (!weeklySchedule.containsKey(initialDayKey) ||
         weeklySchedule[initialDayKey]!.isEmpty) {
       fetchDataForDay(initialDayKey);
     }
-  }Future<void> schedulenotificationforweek() async {
-  if (weeklySchedule.isEmpty) {
-    await fetchWeeklySchedule();
   }
 
-  shownotification(weeklySchedule);
+  Future<void> _schedulenotificationforweek() async {
+    if (weeklySchedule.isEmpty) {
+      await fetchWeeklySchedule();
+    }
 
-
-}
-
+    shownotification(weeklySchedule, context);
+  }
 
   void _handleTabSelection() {
     if (_tabController.indexIsChanging) {
       final selectedDay = _tabController.index;
-      final dayKey = _getDayKey(selectedDay);
+      final dayKey = getDayKey(selectedDay);
       if (weeklySchedule.containsKey(dayKey) &&
           weeklySchedule[dayKey]!.isEmpty) {
         fetchDataForDay(dayKey);
       }
     }
   }
+
   void _initializeSharedPreferences() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-}
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+  }
 
   Future<void> loadWeeklySchedule() async {
-   SharedPreferences prefs = await SharedPreferences.getInstance();
-    for (int i = 0; i < 6; i++) {
-      final dayKey = _getDayKey(i);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    for (int i = 0; i < 7; i++) {
+      final dayKey = getDayKey(i);
       if (prefs.containsKey(dayKey)) {
         final storedData = prefs.getString(dayKey);
         if (storedData != null) {
@@ -100,8 +100,8 @@ class _SecondYearViewsState extends State<SecondYearViews> with SingleTickerProv
   }
 
   Future<void> fetchWeeklySchedule() async {
-    for (int i = 0; i < 6; i++) {
-      final dayKey = _getDayKey(i);
+    for (int i = 0; i < 7; i++) {
+      final dayKey = getDayKey(i);
       if (!weeklySchedule.containsKey(dayKey)) {
         await fetchDataForDay(dayKey);
       }
@@ -112,7 +112,6 @@ class _SecondYearViewsState extends State<SecondYearViews> with SingleTickerProv
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     final apiUrl = "${dotenv.env['URL_SECOND']}${widget.section1}";
-        
 
     if (prefs.containsKey(dayKey)) {
       final storedData = prefs.getString(dayKey);
@@ -140,215 +139,176 @@ class _SecondYearViewsState extends State<SecondYearViews> with SingleTickerProv
 
           prefs.setString(dayKey, response.body);
 
-          for (var classInfo in weeklySchedule[dayKey]!) {
-            // _scheduleNotificationForClass(classInfo);
-          }
+         
         }
-      } else {
+      } else if(response.statusCode == 429){
+        ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Too many request. Please try again later'),
+          duration: Duration(seconds: 5),
+        ),
+      );
+      }
+      
+      else {
         throw Exception('Failed to load schedule');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: Colors.red,
-          content: Text(
-              'An error occurred'),
+          content: Text('An error occured, please check your internet connection or clear the app data'),
           duration: Duration(seconds: 5),
         ),
       );
     }
   }
 
-
-
-
-  String _getDayKey(int index) {
-    switch (index) {
-      case 0:
-        return "MON";
-      case 1:
-        return "TUE";
-      case 2:
-        return "WED";
-      case 3:
-        return "THU";
-      case 4:
-        return "FRI";
-      case 5:
-        return "SAT";
-      default:
-        throw Exception("Invalid day index");
-    }
-  }
-
-Future<void> _schedulenotificationforweek() async {
-  if (weeklySchedule.isEmpty) {
-    await fetchWeeklySchedule();
-  }
-
-  shownotification(weeklySchedule);
-
-
-}
-
-
   @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
-      child: Scaffold(
-        backgroundColor: Colors.black38,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
+Widget build(BuildContext context) {
+  // ignore: deprecated_member_use
+  return WillPopScope(
+    onWillPop: () async {
+      bool exit = await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Exit App'),
+          content: Text('Do you want to exit the app?'),
           actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.info_outline_rounded,
-                color: Colors.white,
-              ),
+            TextButton(
               onPressed: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) =>  Secondyearabout()));
+                Navigator.of(context).pop(false);
               },
+              child: Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: Text('Yes'),
             ),
           ],
-          elevation: 0,
-          backgroundColor: Colors.black38,
-          shadowColor: Colors.black,
-          bottom: TabBar(
-            dividerColor: Colors.black,
-            controller: _tabController,
-            tabs: [
-              const Tab(text: 'MON'),
-              const Tab(text: 'TUE'),
-              const Tab(text: 'WED'),
-              const Tab(text: 'THU'),
-              const Tab(text: 'FRI'),
-              const Tab(text: 'SAT'),
-            ],
-            indicatorColor: Colors.white,
-            labelColor: Colors.white,
-          ),
         ),
-        body: Container(
-          padding: const EdgeInsets.only(top: 10),
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildDaySchedule("MON"),
-              _buildDaySchedule("TUE"),
-              _buildDaySchedule("WED"),
-              _buildDaySchedule("THU"),
-              _buildDaySchedule("FRI"),
-              _buildDaySchedule("SAT"),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-Widget _buildDaySchedule(String dayKey) {
-  if (weeklySchedule.containsKey(dayKey) && weeklySchedule[dayKey] != null) {
-    final schedule = weeklySchedule[dayKey]!;
-    if (schedule.isEmpty) {
-      return const Center(
-        child: Text("No classes today", style: TextStyle(fontSize: 30, color: Colors.white)),
       );
-    }
 
-    // Get the current time
-    final currentTime = DateTime.now();
+      if (exit?? false) {
+        // Exit the whole app
+        SystemNavigator.pop();
+      }
 
-    return ListView.builder(
-      itemCount: schedule.length,
-      itemBuilder: (context, index) {
-        final scheduleItem = schedule[index];
+      return false;
+    },
+    child: Scaffold(
+      backgroundColor: Colors.black38,
+      appBar: AppBar(
+        toolbarHeight: 80,
+        automaticallyImplyLeading: false,
+        title: Column(
 
-        // Convert time from 1-6 to 13-18
-        int startTime = int.parse(scheduleItem['time'].split('-')[0]);
-        int endTime = int.parse(scheduleItem['time'].split('-')[1]);
-
-        // Adjust the conversion for the hour 12
-        if (startTime >= 1 && startTime <= 6) {
-          startTime = startTime + 12;
-        }
-
-        if (endTime >= 1 && endTime <= 6) {
-          endTime = endTime + 12;
-        }
-
-        // Display time in 1-2 format
-        final displayTime = '${scheduleItem['time']}';
-
-        // Check if the current time is within the specified range and if it's the correct day
-        final isCurrentDay = dayKey == _getDayKey(currentTime.weekday - 1);
-        final isCurrentTimeInRange = currentTime.hour >= startTime && currentTime.hour < endTime;
-
-        final isrunningclass = isCurrentDay && isCurrentTimeInRange;
-
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          elevation: isrunningclass ? 10 : 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: isrunningclass?Colors.green: Colors.white54,
-              width: isrunningclass?3:1,
-              
-            ),
-          ),
-          shadowColor: isrunningclass ? Colors.green : Colors.white,
-          
-          child: ListTile(
-            tileColor: Colors.black,
-            title: Text(
-              scheduleItem['subject'],
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-                fontSize: isrunningclass ? 30 : 24,
-              ),
-            ),
-            subtitle: Row(
+          children: [
+            SizedBox(height: 40,),
+            Row(
               children: [
                 Text(
-                  displayTime,
+                  'KIIT ',
                   style: TextStyle(
-                    color: Colors.red,
-                    fontSize: isrunningclass ? 30 : 24,
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30,
                   ),
                 ),
+                SizedBox(width: 5,),
                 Text(
-                  ' |',
+                  'KAKSHA',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: isrunningclass ? 26 : 20,
-                  ),
-                ),
-                Text(
-                  ' ${scheduleItem['roomNo']}',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: isrunningclass ? 26 : 20,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30,
                   ),
                 ),
               ],
             ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            iconSize: 25,
+            icon: const Icon(
+              
+              Icons.info_outline_rounded,
+              color: Colors.white,
+            ), // Change the icon as needed
+            onPressed: () {
+
+             Navigator.pushNamed(context, RouteManager.SecondYearabout,arguments: {
+              "schedule": weeklySchedule,
+             });
+            },
           ),
-        );
-      },
-    );
-  } else {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
-  }
+        ],
+        elevation: 0,
+        backgroundColor: Colors.black38,
+        shadowColor: Colors.black,
+        // Set the app bar color
+      ),
+      body: Container(
+        padding: const EdgeInsets.only(top: 10),
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: DefaultTabController(
+          length: 7,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.start,
+            
+            children: [
+              // SizedBox(height: 10,),
+              TabBar(
+                // physics: BouncingScrollPhysics(),
+                  // indicatorPadding: EdgeInsets.zero,
+                  labelPadding: EdgeInsets.symmetric(horizontal: 20.0), 
+                dividerColor: Colors.black,
+                labelStyle: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),
+                isScrollable: true,
+                controller: _tabController,
+                tabs: [
+                  const Tab(text: 'Monday'),
+                  const Tab(text: 'Tuesday'),
+                  const Tab(text: 'Wednesday'),
+                  const Tab(text: 'Thursday'),
+                  const Tab(text: 'Friday'),
+                  const Tab(text: 'Saturday'),
+                  const Tab(text: 'Sunday'),
+
+                ],
+                indicatorColor: Colors.white,
+                tabAlignment: TabAlignment.center,
+                labelColor: Colors.white,
+                //  labelPadding: EdgeInsets.symmetric(horizontal: 0),
+              ),
+              SizedBox(height: 20,),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  
+                  children: [
+                    buildDaySchedule("MON",weeklySchedule),
+                    buildDaySchedule("TUE",weeklySchedule),
+                    buildDaySchedule("WED",weeklySchedule),
+                    buildDaySchedule("THU",weeklySchedule),
+                    buildDaySchedule("FRI",weeklySchedule),
+                    buildDaySchedule("SAT",weeklySchedule),
+                    buildDaySchedule("SUN",weeklySchedule),
+
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }
-
-
-
-}
+    }

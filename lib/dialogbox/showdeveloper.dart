@@ -39,6 +39,8 @@ void showDeveloperDialog(BuildContext context) {
                        showmedia("https://www.instagram.com/rohankarn487/", "assets/insta.jpg"),
                         SizedBox(width: 8,),
                        showmedia("https://www.linkedin.com/in/rohan-karn-725847222/", "assets/linkdein.png"),
+                       SizedBox(width: 8,),
+                       showmedia("https://www.rohankarn.com.np/", "assets/weblogo.png")
 
 
                       ],

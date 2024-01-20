@@ -25,6 +25,13 @@ class SecondYear extends StatefulWidget {
 class _SecondYearState extends State<SecondYear> {
   List<String> items1 = [];
   String? dropdownValue1;
+   final TextEditingController textEditingController = TextEditingController();
+
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -73,7 +80,10 @@ class _SecondYearState extends State<SecondYear> {
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
+            // mainAxisAlignment: MainAxisAlignment.center,
             children: [
+                  SizedBox(height: 50,),
+
               Center(
                   child: Text(
                 "Select Core Section",
@@ -90,8 +100,11 @@ class _SecondYearState extends State<SecondYear> {
                 setState(() {
                   dropdownValue1 = newValue;
                 });
-              }),
-              SizedBox(height: 32.0),
+              },
+              textEditingController
+              
+              ),
+              SizedBox(height: 70),
               ElevatedButton(
                 onPressed: (dropdownValue1 != null)
                     ? () async {
@@ -109,12 +122,14 @@ class _SecondYearState extends State<SecondYear> {
                         );
                       }
                     : null,
-                style: ElevatedButton.styleFrom(
-                  primary: (dropdownValue1 != null)
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all((dropdownValue1 != null)
                       ? Colors.green
-                      : Colors.redAccent, // Set the button color based on conditions
+                      : Colors.grey, )
                 ),
-                child: Text("Submit"),
+                child: Text("Submit", style: TextStyle(color: (dropdownValue1 != null)
+                      ? Colors.white
+                      : Color.fromARGB(255, 3, 14, 77),),),
               ),
             ],
           ),

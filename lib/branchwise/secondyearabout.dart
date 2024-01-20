@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:kiit_kaksha/main.dart';
-import 'package:kiit_kaksha/select.dart';
+import 'package:kiit_kaksha/aboutwidgets/showconfirmation.dart';
+import 'package:kiit_kaksha/aboutwidgets/showremainder.dart';
+import 'package:kiit_kaksha/aboutwidgets/showreport.dart';
+
+
 import 'package:shared_preferences/shared_preferences.dart';
 import '../dialogbox/showdeveloper.dart';
 import '../widgets/aboutwidget.dart';
 
 
 class Secondyearabout extends StatefulWidget {
-  const Secondyearabout({Key? key}) : super(key: key);
+
+  final Map<String, List<Map<String, dynamic>>> weeklySchedule;
+
+
+  const Secondyearabout({Key? key, required this.weeklySchedule}) : super(key: key);
 
   @override
   State<Secondyearabout> createState() => _SecondyearaboutState();
@@ -95,7 +102,12 @@ class _SecondyearaboutState extends State<Secondyearabout> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          buildAboutContainer(
+                             buildAContainer(context, "Class Remainder",
+                              "Manage your class remainder", () {
+                            showremainderconfirmation(context,widget.weeklySchedule);
+                          }, Colors.black),
+                          const SizedBox(width: 10),
+                          buildAContainer(
                             context,
                             'About Developer',
                             'Get to know about the developer',
@@ -106,7 +118,7 @@ class _SecondyearaboutState extends State<Secondyearabout> {
                             Colors.black,
                           ),
                           const SizedBox(width: 10),
-                          buildResetContainer(
+                          buildAContainer(
                             context,
                             'Reset',
                             'Reset to change year and section again',
@@ -117,7 +129,7 @@ class _SecondyearaboutState extends State<Secondyearabout> {
                             Colors.black,
                           ),
                           const SizedBox(width: 10),
-                          buildReportContainer(
+                          buildAContainer(
                             context,
                             'Report Problem',
                             'Report any issues',
@@ -140,7 +152,7 @@ class _SecondyearaboutState extends State<Secondyearabout> {
             padding: const EdgeInsets.all(8),
             color: Colors.black,
             child: const Text(
-              '© 2024 KIIT Connect',
+              '© 2024 KIIT CONNECT',
               style: TextStyle(color: Colors.grey),
             ),
           ),
@@ -152,148 +164,4 @@ class _SecondyearaboutState extends State<Secondyearabout> {
 
 
 
-  Widget buildResetContainer(
-      BuildContext context, String title, String subtitle, VoidCallback onPressed, Color color) {
-    return Container(
-      height: 110,
-      width: 200,
-      child: GestureDetector(
-        onTap: onPressed,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.white70,
-              width: 1,
-            ),
-            color: color,
-          ),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.greenAccent,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildReportContainer(
-      BuildContext context, String title, String subtitle, VoidCallback onPressed, Color color) {
-    return Container(
-      height: 110,
-      width: 200,
-      child: GestureDetector(
-        onTap: onPressed,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.white70,
-              width: 1,
-            ),
-            color: color,
-          ),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.greenAccent,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Function to show the developer information dialog
-
-
-  void showResetConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirmation'),
-          content: Text('Do you really want to clear your data?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('No'),
-            ),
-            TextButton(
-              onPressed: () async {
-                await clearLocalData();
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => BranchSelect()));
-                // Navigator.pop(context);
-              },
-              child: Text('Yes'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> clearLocalData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    await notificationsPlugin.cancelAll();
-  }
-
-  void showReportDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Report Problem'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Please mail your problem to rohankarn35@gmail.com or connectkiit@gmail.com'),
-              SizedBox(height: 10),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }

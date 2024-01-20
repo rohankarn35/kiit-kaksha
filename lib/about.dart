@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:kiit_kaksha/main.dart';
+import 'package:kiit_kaksha/aboutwidgets/showconfirmation.dart';
+import 'package:kiit_kaksha/aboutwidgets/showremainder.dart';
+import 'package:kiit_kaksha/aboutwidgets/showreport.dart';
 import 'package:kiit_kaksha/provider/thirdyearselect.dart';
-import 'package:kiit_kaksha/select.dart';
+import 'package:kiit_kaksha/widgets/aboutwidget.dart';
+
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dialogbox/showdeveloper.dart';
 
 class AboutPage extends StatefulWidget {
-  const AboutPage({Key? key}) : super(key: key);
+  final Map<String, List<Map<String, dynamic>>> weeklySchedule; 
+   AboutPage({Key? key, required this.weeklySchedule}) : super(key: key);
 
   @override
   State<AboutPage> createState() => _AboutPageState();
@@ -19,23 +22,14 @@ class _AboutPageState extends State<AboutPage> {
   String section2 = "";
   String section3 = "";
 
-  // ThirdYearSelectProvider mydata = Provider.of<ThirdYearSelectProvider>(context,listen: false);
-
-  // void getValues() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-
-  //   section1 = prefs.getString("dropdownValue1") ?? " ";
-  //   section2 = prefs.getString("dropdownValue2") ?? " ";
-  //   section3 = prefs.getString("dropdownValue3") ?? " ";
-  // }
-
   @override
   void initState() {
     super.initState();
 
     // WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      // This callback will be called after the build method is complete
-      Provider.of<ThirdYearSelectProvider>(context,listen: false).getSharedPrefencesValue();
+
+    Provider.of<ThirdYearSelectProvider>(context, listen: false)
+        .getSharedPrefencesValue();
     // });
   }
 
@@ -117,7 +111,12 @@ class _AboutPageState extends State<AboutPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          buildAboutContainer(
+                          buildAContainer(context, "Class Remainder",
+                              "Manage your class remainder", () {
+                            showremainderconfirmation(context,widget.weeklySchedule);
+                          }, Colors.black),
+                          const SizedBox(width: 10),
+                          buildAContainer(
                             context,
                             'About Developer',
                             'Get to know about the developer',
@@ -128,7 +127,7 @@ class _AboutPageState extends State<AboutPage> {
                             Colors.black,
                           ),
                           const SizedBox(width: 10),
-                          buildResetContainer(
+                          buildAContainer(
                             context,
                             'Reset',
                             'Reset to change year and section again',
@@ -139,7 +138,7 @@ class _AboutPageState extends State<AboutPage> {
                             Colors.black,
                           ),
                           const SizedBox(width: 10),
-                          buildReportContainer(
+                          buildAContainer(
                             context,
                             'Report Problem',
                             'Report any issues',
@@ -152,7 +151,8 @@ class _AboutPageState extends State<AboutPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 60),
+                    // Text("This is a notice",style: TextStyle(color: Colors.greenAccent),),
                   ],
                 ),
               ),
@@ -162,7 +162,7 @@ class _AboutPageState extends State<AboutPage> {
             padding: const EdgeInsets.all(8),
             color: Colors.black,
             child: const Text(
-              '© 2024 KIIT Connect',
+              '© 2024 KIIT CONNECT',
               style: TextStyle(color: Colors.grey),
             ),
           ),
@@ -171,192 +171,5 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
-  Widget buildAboutContainer(BuildContext context, String title,
-      String subtitle, VoidCallback onPressed, Color color) {
-    return Container(
-      height: 110,
-      width: 200,
-      child: GestureDetector(
-        onTap: onPressed,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.white70,
-              width: 1,
-            ),
-            color: color,
-          ),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.greenAccent,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildResetContainer(BuildContext context, String title,
-      String subtitle, VoidCallback onPressed, Color color) {
-    return Container(
-      height: 110,
-      width: 200,
-      child: GestureDetector(
-        onTap: onPressed,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.white70,
-              width: 1,
-            ),
-            color: color,
-          ),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.greenAccent,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildReportContainer(BuildContext context, String title,
-      String subtitle, VoidCallback onPressed, Color color) {
-    return Container(
-      height: 110,
-      width: 200,
-      child: GestureDetector(
-        onTap: onPressed,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.white70,
-              width: 1,
-            ),
-            color: color,
-          ),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.greenAccent,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   // Function to show the developer information dialog
-
-  void showResetConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirmation'),
-          content: Text('Do you really want to clear your data?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('No'),
-            ),
-            TextButton(
-              onPressed: () async {
-                await clearLocalData();
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => BranchSelect()));
-              },
-              child: Text('Yes'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> clearLocalData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    notificationsPlugin.cancelAll().then((value) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      duration: Duration(seconds: 3),
-      backgroundColor: Colors.green,
-      content: Center(child: Text("Data Cleared")))));
-  }
-
-  void showReportDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Report Problem'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                  'Please mail your problem to rohankarn35@gmail.com or connectkiit@gmail.com'),
-              SizedBox(height: 10),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
