@@ -52,4 +52,5 @@ app.*.map.json
 /ios
 /lib/firebase_options.dart
 /lib/sectiondetails
+/macos 
 
