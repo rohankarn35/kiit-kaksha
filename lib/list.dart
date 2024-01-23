@@ -1,7 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -9,8 +8,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:kiit_kaksha/Notification/notificationservice.dart';
 import 'package:kiit_kaksha/Routes/routes.dart';
-import 'package:kiit_kaksha/about.dart';
 import 'package:kiit_kaksha/widgets/builddaily.dart';
+import 'package:kiit_kaksha/widgets/buildthirdschedule.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Views extends StatefulWidget {
@@ -41,7 +40,7 @@ class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
     _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(_handleTabSelection);
     _schedulenotificationforweek();
-
+analytics.setAnalyticsCollectionEnabled(true);
     // Load data from SharedPreferences
     loadWeeklySchedule();
     fetchWeeklySchedule();
@@ -61,6 +60,8 @@ class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
       fetchDataForDay(initialDayKey);
     }
   }
+    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  
 
   void _handleTabSelection() {
     // print("object");
@@ -89,6 +90,10 @@ class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
         }
       }
     }
+  }
+
+  Future<void> scheduleNotifications() async {
+    await _schedulenotificationforweek();
   }
 
   Future<void> fetchWeeklySchedule() async {
@@ -147,7 +152,7 @@ class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
           backgroundColor: Colors.red,
           content: Text(
               'An error occured, please check your internet connection or clear the app data'),
-          duration: Duration(seconds: 5),
+          duration: Duration(seconds: 2),
         ),
       );
     }
@@ -174,6 +179,9 @@ class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+            analytics.logEvent(name: 'view_thirdyear', parameters: {'thirdyear_view': 'third_year_view'});
+
+
     // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
@@ -303,13 +311,28 @@ class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      buildDaySchedule("MON", weeklySchedule),
-                      buildDaySchedule("TUE", weeklySchedule),
-                      buildDaySchedule("WED", weeklySchedule),
-                      buildDaySchedule("THU", weeklySchedule),
-                      buildDaySchedule("FRI", weeklySchedule),
-                      buildDaySchedule("SAT", weeklySchedule),
-                      buildDaySchedule("SUN", weeklySchedule),
+                      // buildDaySchedule("MON", weeklySchedule),
+                      // buildDaySchedule("TUE", weeklySchedule),
+                      // buildDaySchedule("WED", weeklySchedule),
+                      // buildDaySchedule("THU", weeklySchedule),
+                      // buildDaySchedule("FRI", weeklySchedule),
+                      // buildDaySchedule("SAT", weeklySchedule),
+                      // buildDaySchedule("SUN", weeklySchedule),
+                      buildDaythirdSchedule("MON", weeklySchedule,
+                          widget.section1, widget.section2, widget.section3),
+                      buildDaythirdSchedule("TUE", weeklySchedule,
+                          widget.section1, widget.section2, widget.section3),
+                      buildDaythirdSchedule("WED", weeklySchedule,
+                          widget.section1, widget.section2, widget.section3),
+
+                      buildDaythirdSchedule("THU", weeklySchedule,
+                          widget.section1, widget.section2, widget.section3),
+                      buildDaythirdSchedule("FRI", weeklySchedule,
+                          widget.section1, widget.section2, widget.section3),
+                      buildDaythirdSchedule("SAT", weeklySchedule,
+                          widget.section1, widget.section2, widget.section3),
+                      buildDaythirdSchedule("SUN", weeklySchedule,
+                          widget.section1, widget.section2, widget.section3),
                     ],
                   ),
                 ),

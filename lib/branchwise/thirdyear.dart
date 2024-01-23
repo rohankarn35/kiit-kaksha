@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kiit_kaksha/Routes/routes.dart';
 import 'package:kiit_kaksha/provider/thirdyearselect.dart';
+import 'package:kiit_kaksha/widgets/dropdownelective.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/dropmenu.dart';
 
@@ -118,7 +118,7 @@ class _ThirdYearState extends State<ThirdYear> {
                   textEditingController
                   ),
                   SizedBox(height: 20),
-                  buildDropdown(context,"Elective 1", items2, dropdownValue2,
+                  buildDropdownelective(context,"Elective 1", items2, dropdownValue2,
                       (String? newValue) {
                      dropdownValue2 = value.updateDropDown2(newValue!);
                   },
@@ -126,7 +126,7 @@ class _ThirdYearState extends State<ThirdYear> {
                   
                   ),
                   SizedBox(height: 20),
-                  buildDropdown(context, "Elective 2", items3, dropdownValue3,
+                  buildDropdownelective(context, "Elective 2", items3, dropdownValue3,
                       (String? newValue) {
                      dropdownValue3 = value.updateDropDown3(newValue!);
                   },

@@ -1,4 +1,4 @@
-import 'package:flutter/gestures.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -7,8 +7,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:kiit_kaksha/Notification/notificationservice.dart';
 import 'package:kiit_kaksha/Routes/routes.dart';
-import 'package:kiit_kaksha/about.dart';
-import 'package:kiit_kaksha/branchwise/secondyearabout.dart';
 import 'package:kiit_kaksha/widgets/builddaily.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,6 +29,8 @@ class _SecondYearViewsState extends State<SecondYearViews>
   late TabController _tabController;
   Map<String, List<Map<String, dynamic>>> weeklySchedule = {};
   // late SharedPreferences prefs;
+    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
 
   @override
   void initState() {
@@ -38,6 +38,7 @@ class _SecondYearViewsState extends State<SecondYearViews>
 
     _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(_handleTabSelection);
+    analytics.setAnalyticsCollectionEnabled(true);
 
     // _initializeSharedPreferences();
     _schedulenotificationforweek();
@@ -159,7 +160,7 @@ class _SecondYearViewsState extends State<SecondYearViews>
         const SnackBar(
           backgroundColor: Colors.red,
           content: Text('An error occured, please check your internet connection or clear the app data'),
-          duration: Duration(seconds: 5),
+          duration: Duration(seconds: 2),
         ),
       );
     }
@@ -167,6 +168,8 @@ class _SecondYearViewsState extends State<SecondYearViews>
 
   @override
 Widget build(BuildContext context) {
+            analytics.logEvent(name: 'view_second_year', parameters: {'view_second_year': 'view_second_year'});
+
   // ignore: deprecated_member_use
   return WillPopScope(
     onWillPop: () async {
@@ -202,35 +205,38 @@ Widget build(BuildContext context) {
     child: Scaffold(
       backgroundColor: Colors.black38,
       appBar: AppBar(
-        toolbarHeight: 80,
-        automaticallyImplyLeading: false,
-        title: Column(
-
-          children: [
-            SizedBox(height: 40,),
-            Row(
-              children: [
-                Text(
-                  'KIIT ',
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30,
+          toolbarHeight: 80,
+          automaticallyImplyLeading: false,
+          title: Column(
+            children: [
+              SizedBox(
+                height: 40,
+              ),
+              Row(
+                children: [
+                  Text(
+                    'KIIT ',
+                    style: TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 30,
+                    ),
                   ),
-                ),
-                SizedBox(width: 5,),
-                Text(
-                  'KAKSHA',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30,
+                  SizedBox(
+                    width: 5,
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                  Text(
+                    'KAKSHA',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 30,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         actions: [
           IconButton(
             iconSize: 25,
@@ -267,24 +273,24 @@ Widget build(BuildContext context) {
               TabBar(
                 // physics: BouncingScrollPhysics(),
                   // indicatorPadding: EdgeInsets.zero,
-                  labelPadding: EdgeInsets.symmetric(horizontal: 20.0), 
-                dividerColor: Colors.black,
-                labelStyle: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),
-                isScrollable: true,
-                controller: _tabController,
-                tabs: [
-                  const Tab(text: 'Monday'),
-                  const Tab(text: 'Tuesday'),
-                  const Tab(text: 'Wednesday'),
-                  const Tab(text: 'Thursday'),
-                  const Tab(text: 'Friday'),
-                  const Tab(text: 'Saturday'),
-                  const Tab(text: 'Sunday'),
-
-                ],
-                indicatorColor: Colors.white,
-                tabAlignment: TabAlignment.center,
-                labelColor: Colors.white,
+                  dividerColor: Colors.black,
+                  labelStyle:
+                      TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  isScrollable: true,
+                  controller: _tabController,
+                  tabs: [
+                    const Tab(text: 'Monday'),
+                    const Tab(text: 'Tuesday'),
+                    const Tab(text: 'Wednesday'),
+                    const Tab(text: 'Thursday'),
+                    const Tab(text: 'Friday'),
+                    const Tab(text: 'Saturday'),
+                    const Tab(text: 'Sunday'),
+                  ],
+                  indicatorColor: Colors.white,
+                  tabAlignment: TabAlignment.center,
+                  labelColor: Colors.white,
+                  unselectedLabelStyle: TextStyle(fontSize: 20),
                 //  labelPadding: EdgeInsets.symmetric(horizontal: 0),
               ),
               SizedBox(height: 20,),
@@ -293,13 +299,13 @@ Widget build(BuildContext context) {
                   controller: _tabController,
                   
                   children: [
-                    buildDaySchedule("MON",weeklySchedule),
-                    buildDaySchedule("TUE",weeklySchedule),
-                    buildDaySchedule("WED",weeklySchedule),
-                    buildDaySchedule("THU",weeklySchedule),
-                    buildDaySchedule("FRI",weeklySchedule),
-                    buildDaySchedule("SAT",weeklySchedule),
-                    buildDaySchedule("SUN",weeklySchedule),
+                    buildDaySchedule("MON",weeklySchedule,widget.section1),
+                    buildDaySchedule("TUE",weeklySchedule,widget.section1),
+                    buildDaySchedule("WED",weeklySchedule,widget.section1),
+                    buildDaySchedule("THU",weeklySchedule,widget.section1),
+                    buildDaySchedule("FRI",weeklySchedule,widget.section1),
+                    buildDaySchedule("SAT",weeklySchedule,widget.section1),
+                    buildDaySchedule("SUN",weeklySchedule,widget.section1),
 
                   ],
                 ),

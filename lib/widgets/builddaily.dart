@@ -1,6 +1,12 @@
  import 'package:flutter/material.dart';
+import 'package:jumping_dot/jumping_dot.dart';
+import 'package:kiit_kaksha/sectiondetails/secondyear.dart';
+import 'package:kiit_kaksha/widgets/teacherview.dart';
 
-Widget buildDaySchedule(String dayKey, Map<String, List<Map<String, dynamic>>> weeklySchedule) {
+Widget buildDaySchedule(String dayKey, Map<String, List<Map<String, dynamic>>> weeklySchedule,String subjectname) {
+  
+  final json = showsecondyear();
+// print(json);
     if (weeklySchedule.containsKey(dayKey) && weeklySchedule[dayKey] != null) {
       final schedule = weeklySchedule[dayKey]!;
       if (schedule.isEmpty) {
@@ -48,60 +54,86 @@ Widget buildDaySchedule(String dayKey, Map<String, List<Map<String, dynamic>>> w
                         currentTime.hour < endHour;
         
             final isrunningclass = isCurrentDay && isCurrentTimeInRange;
+            final String subjects = scheduleItem['subject'];
+            final String teachername = json[subjectname][subjects] ?? "";
         
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              elevation: isrunningclass ? 10 : 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(
-                  color: isrunningclass ? Colors.green : Colors.white54,
-                  width: isrunningclass ? 3 : 1,
-                ),
-              ),
-              shadowColor: isrunningclass ? Colors.green : Colors.white,
-              child: ListTile(
-                tileColor: Colors.black,
-                title: Text(
-                  scheduleItem['subject'],
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                    fontSize: isrunningclass ? 30 : 24,
+            return GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>
+                  TeacherView(teachername: teachername,)
+                ));
+              },
+              child: Card(
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                elevation: isrunningclass ? 10 : 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: isrunningclass ? Colors.green : Colors.white54,
+                    width: isrunningclass ? 3 : 1,
                   ),
                 ),
-                subtitle: Row(
-                  children: [
-                    Text(
-                      displayTime,
+                shadowColor: isrunningclass ? Colors.green : Colors.white,
+                child: ListTile(
+                  tileColor: Colors.black,
+                  title: Row(
+                    children:[ Text(
+                      scheduleItem['subject'],
                       style: TextStyle(
-                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
                         fontSize: isrunningclass ? 30 : 24,
                       ),
                     ),
-                    Text(
-                      ' |',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isrunningclass ? 26 : 20,
-                      ),
-                    ),
-                    Text(
-                      ' ${scheduleItem['roomNo']}',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: isrunningclass ? 26 : 20,
-                      ),
-                    ),
-                  ],
-                ),
+                    SizedBox(width: 5,),
+                    Text("|",style: TextStyle(color: Colors.white,fontSize: isrunningclass ? 30 : 24,),),
+                    SizedBox(width: 10,),
+                    Expanded(child: Text("${teachername}",style: TextStyle(color: Colors.grey,fontSize: 15),)),
+                    
+                    ]
                   ),
-                );
+                  subtitle: Row(
+                    children: [
+                      Text(
+                        displayTime,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: isrunningclass ? 30 : 24,
+                        ),
+                      ),
+                      Text(
+                        ' |',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isrunningclass ? 26 : 20,
+                        ),
+                      ),
+                      Text(
+                        ' ${scheduleItem['roomNo']}',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: isrunningclass ? 26 : 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                    ),
+                  ),
+            );
               },
           );
         } else {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return  Center(
+            child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          JumpingDots(
+            color: Colors.white,
+          ),
+          SizedBox(height: 20,),
+          Text("Fetching data...",style:TextStyle(color: Colors.grey),)
+        ],
+            )
           );
         }
       }

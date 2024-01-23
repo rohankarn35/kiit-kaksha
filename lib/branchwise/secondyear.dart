@@ -1,4 +1,3 @@
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:kiit_kaksha/branchwise/secondview.dart';
 // import 'package:kiit_kaksha/list.dart';

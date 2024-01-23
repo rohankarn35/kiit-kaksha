@@ -5,8 +5,8 @@ import 'package:kiit_kaksha/branchwise/secondyear.dart';
 import 'package:kiit_kaksha/branchwise/secondyearabout.dart';
 import 'package:kiit_kaksha/branchwise/thirdyear.dart';
 import 'package:kiit_kaksha/list.dart';
-import 'package:kiit_kaksha/select.dart';
 import 'package:kiit_kaksha/splashscreen.dart';
+import 'package:kiit_kaksha/widgets/teacherview.dart';
 
 class RouteManager {
   static const String Home = "./";
@@ -15,6 +15,7 @@ class RouteManager {
   static const String ThirdYearinfo = "./thirdyearinfo";
   static const String Thirdyearabout = "./thirdyearabout";
   static const String SecondYearabout = "./secondyearabout";
+  static const String TeacherViewpage = "./teacherview";
 
   static Route<dynamic> generateRoutes(RouteSettings settings) {
     switch (settings.name) {
@@ -78,7 +79,17 @@ if(arguments!=null){
 
 return MaterialPageRoute(builder: (context)=> Secondyearabout(weeklySchedule: weeklySchedule,));
 }
-throw const FormatException("Wrong Route Format"); 
+throw const FormatException("Wrong Route Format");
+case TeacherViewpage:
+    final Map<String, dynamic>? arguments = settings.arguments as Map<String, dynamic>?;
+if(arguments!=null){
+  final String teachername = arguments["teachername"];
+
+        return MaterialPageRoute(builder: (context) =>  TeacherView(teachername: teachername,));
+}else{
+  throw FormatException("Wrong route exception");
+}
+
 
 
   default:

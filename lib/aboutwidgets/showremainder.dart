@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kiit_kaksha/Notification/notificationservice.dart';
-import 'package:kiit_kaksha/list.dart';
 import 'package:kiit_kaksha/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

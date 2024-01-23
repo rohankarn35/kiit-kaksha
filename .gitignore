@@ -50,4 +50,6 @@ app.*.map.json
 /windows
 /test
 /ios
+/lib/firebase_options.dart
+/lib/sectiondetails
 

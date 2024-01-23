@@ -23,7 +23,7 @@ void shownotification(Map<String, List<Map<String, dynamic>>> scheduleDay,
           await androidNotificationsPlugin.requestNotificationsPermission();
 
       if (hasPermission == null || !hasPermission) {
-        // openAppSettings();
+        openAppSettings();
         // Permissions not granted, handle accordingly (e.g., show a message to the user)
         print('Notification permissions not granted.');
       } else {
@@ -74,7 +74,7 @@ void shownotification(Map<String, List<Map<String, dynamic>>> scheduleDay,
                 startHour,
                 startMinute,
               );
-// DateTime notificationTime = now.add(Duration(minutes: 40+(i*10)));
+// DateTime notificationTime = now.add(Duration(seconds: 2));
 
               if (now.isAfter(notificationTime)) {
                 print(
@@ -95,6 +95,7 @@ void shownotification(Map<String, List<Map<String, dynamic>>> scheduleDay,
               )
                   .then((value) {
 // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Notification Scheduled for $subjectName at $notificationTime")));
+print("Notification scheuled $subjectName at $notificationTime");
               });
             }
           }

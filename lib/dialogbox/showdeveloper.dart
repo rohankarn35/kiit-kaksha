@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kiit_kaksha/widgets/media.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 void showDeveloperDialog(BuildContext context) {
   showDialog(

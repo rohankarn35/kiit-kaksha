@@ -21,7 +21,7 @@ Widget buildDropdown(
                 .map((String item) => DropdownMenuItem<String>(
                       value: item,
                       child: Text(
-                        item,
+                        "${item}",
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,

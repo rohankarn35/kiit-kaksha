@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:kiit_kaksha/branchwise/secondview.dart';
 import 'package:kiit_kaksha/list.dart';
@@ -18,6 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    analytics.setAnalyticsCollectionEnabled(true);
 
     // Start the animation after a delay
     Timer(Duration(milliseconds: 400), () {
@@ -26,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
       });
 
       // Redirect to another page after 3 seconds
-      Timer(Duration(milliseconds: 900), () {
+      Timer(Duration(milliseconds: 800), () {
         _redirectToPage();
       });
     });
@@ -41,7 +43,6 @@ void _redirectToPage() async {
     String section1 = prefs.getString("dropdownValue1") ?? " ";
     String section2 = prefs.getString("dropdownValue2") ?? " ";
     String section3 = prefs.getString("dropdownValue3") ?? " ";
-    String year = prefs.getString("selectedyear") ?? "";
     String section4 = prefs.getString("dropdownValue4") ?? " ";
 
     // Decide where to navigate
@@ -79,16 +80,22 @@ void _redirectToPage() async {
     // You can show an error message to the user or take other appropriate actions
   }
 }
+    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
 
   @override
   Widget build(BuildContext context) {
+            analytics.logEvent(name: 'splashscreen', parameters: {'splash': 'splashscreen'});
+
     return Scaffold(
+      
       backgroundColor: Colors.black,
       body: Center(
         child: Column(
+          
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
             AnimatedContainer(
               duration: Duration(seconds: 1),
               height: showAnimation ? 120 : 0,

@@ -1,9 +1,8 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kiit_kaksha/Routes/routes.dart';
-import 'package:kiit_kaksha/branchwise/secondyear.dart';
-import 'package:kiit_kaksha/branchwise/thirdyear.dart';
 import 'package:kiit_kaksha/provider/selectprovider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +15,13 @@ class BranchSelect extends StatefulWidget {
 class _BranchSelectState extends State<BranchSelect> {
   String selectedYear = "";
   String selectedBranch = "";
+    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    analytics.setAnalyticsCollectionEnabled(true);
+  }
 
   bool get canSubmit => selectedYear.isNotEmpty && selectedBranch.isNotEmpty;
   Future<void> _savePreferences() async {
@@ -71,7 +77,7 @@ class _BranchSelectState extends State<BranchSelect> {
             ],
           ),
         );
-
+    
         return false;
       },
       child: SafeArea(
@@ -125,7 +131,7 @@ class _BranchSelectState extends State<BranchSelect> {
                       ],
                     ),
                   ),
-
+        
                   // Lower Part with Black Background
                   SingleChildScrollView(
                     child: Container(
@@ -161,6 +167,8 @@ class _BranchSelectState extends State<BranchSelect> {
                               children: [
                                 ElevatedButton(
                                   onPressed: () {
+            analytics.logEvent(name: 'button_second_year', parameters: {'button_second_year': 'button_second_year'});
+        
                                     selectedYear = value.updatesecondyear();
                                     print(value.updatesecondyear());
                                   },
@@ -180,6 +188,8 @@ class _BranchSelectState extends State<BranchSelect> {
                                 ),
                                 ElevatedButton(
                                   onPressed: () {
+            analytics.logEvent(name: 'button_third_year', parameters: {'button_third_year': 'button_third_year'});
+        
                                     selectedYear = value.updatethirdyear();
                                   },
                                   child: Text(
@@ -290,13 +300,13 @@ class _BranchSelectState extends State<BranchSelect> {
                       ),
                     ),
                   ),
-
+        
                   ElevatedButton(
                     // onPressed: (){},
                     onPressed: canSubmit
                         ? () async {
                             _savePreferences();
-
+        
                             // Use the selectedYear and selectedBranch for navigation or other actions
                             if (canSubmit) {
                               if (selectedYear == "2nd Year") {
