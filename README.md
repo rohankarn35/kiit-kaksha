@@ -1,16 +1,41 @@
-# kiit_kaksha
+<h1 align="center" id="title">KIIT KAKSHA</h1>
 
-A new Flutter project.
+<p align="center"><img src="https://socialify.git.ci/rohankarn35/kiit-kaksha/image?language=1&amp;name=1&amp;owner=1&amp;stargazers=1&amp;theme=Light" alt="project-image"></p>
 
-## Getting Started
+<p id="description">Develop a Flutter app designed to assist second and third-year students majoring in Computer Science and Engineering (CSE) Computer Science and Systems Engineering (CSSE) Computer Science and Communication Engineering (CSCE) and Information Technology (IT) at KIIT University.</p>
 
-This project is a starting point for a Flutter application.
+<h2>🚀 Demo</h2>
 
-A few resources to get you started if this is your first Flutter project:
+[https://shorturl.at/amTWY](https://shorturl.at/amTWY)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+  
+  
+<h2>🧐 Features</h2>
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Here're some of the project's best features:
+
+*   Customize your class routine by picking your branch and section
+*   Check details about your subject teachers
+*   Get holiday and class notifications
+*   Share teachers' details with friends
+*   No sign-in needed it works offline after loading once
+
+<h2>🛠️ Installation Steps:</h2>
+
+<p>1. Clone</p>
+
+```
+git clone https://github.com/rohankarn35/personal-portfolio.git
+```
+
+<p>2. Install the packages</p>
+
+```
+flutter pub get
+```
+
+<p>3. Run the app</p>
+
+```
+flutter run
+```
