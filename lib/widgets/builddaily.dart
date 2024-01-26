@@ -1,11 +1,12 @@
- import 'package:flutter/material.dart';
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:jumping_dot/jumping_dot.dart';
-import 'package:kiit_kaksha/sectiondetails/secondyear.dart';
 import 'package:kiit_kaksha/widgets/teacherview.dart';
 
-Widget buildDaySchedule(String dayKey, Map<String, List<Map<String, dynamic>>> weeklySchedule,String subjectname) {
+Widget buildDaySchedule(String dayKey, Map<String, List<Map<String, dynamic>>> weeklySchedule,String teachersdata) {
   
-  final json = showsecondyear();
+  final json = jsonDecode(teachersdata);
 // print(json);
     if (weeklySchedule.containsKey(dayKey) && weeklySchedule[dayKey] != null) {
       final schedule = weeklySchedule[dayKey]!;
@@ -33,7 +34,6 @@ Widget buildDaySchedule(String dayKey, Map<String, List<Map<String, dynamic>>> w
             int startHour = startTime.floor();
             int startMinute = ((startTime - startHour) * 60).round();
             int endHour = endTime.floor();
-            int endMinute = ((endTime - endHour) * 60).round();
         
               if (startHour >= 1 && startHour <= 6) {
               startHour = startHour + 12;
@@ -55,7 +55,10 @@ Widget buildDaySchedule(String dayKey, Map<String, List<Map<String, dynamic>>> w
         
             final isrunningclass = isCurrentDay && isCurrentTimeInRange;
             final String subjects = scheduleItem['subject'];
-            final String teachername = json[subjectname][subjects] ?? "";
+            // print(subjects);
+          
+            // print(json[section]);
+            final String teachername = json["section1"][subjects] ?? "";
         
             return GestureDetector(
               onTap: (){

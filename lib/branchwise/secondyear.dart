@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kiit_kaksha/branchwise/secondview.dart';
+import 'package:kiit_kaksha/provider/thirdyearselect.dart';
+import 'package:provider/provider.dart';
 // import 'package:kiit_kaksha/list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -77,7 +79,7 @@ class _SecondYearState extends State<SecondYear> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: Consumer<ThirdYearSelectProvider>(builder: (context, value, child) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             // mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -96,9 +98,7 @@ class _SecondYearState extends State<SecondYear> {
               ),
               buildDropdown(context, "Core Section", items1, dropdownValue1,
                   (String? newValue) {
-                setState(() {
-                  dropdownValue1 = newValue;
-                });
+            dropdownValue1 =   value.updateDropDown4(newValue!);
               },
               textEditingController
               
@@ -131,7 +131,7 @@ class _SecondYearState extends State<SecondYear> {
                       : Color.fromARGB(255, 3, 14, 77),),),
               ),
             ],
-          ),
+          ),)
         ),
       ),
     );

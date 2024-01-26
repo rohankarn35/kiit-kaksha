@@ -1,12 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:jumping_dot/jumping_dot.dart';
 import 'package:kiit_kaksha/Routes/routes.dart';
-import 'package:kiit_kaksha/sectiondetails/thirdyear.dart';
 import 'package:kiit_kaksha/widgets/builddaily.dart';
 
-Widget buildDaythirdSchedule(String dayKey, Map<String, List<Map<String, dynamic>>> weeklySchedule, String section1, String section2, String section3) {
-
-  final json = showthirdyear();
+Widget buildDaythirdSchedule(String dayKey, Map<String, List<Map<String, dynamic>>> weeklySchedule,String? jsondata) {
+// jsondata = jsonEncode(jsondata);
+final json = jsonDecode(jsondata!);
+  
   // print(json);
   if (weeklySchedule.containsKey(dayKey) && weeklySchedule[dayKey] != null) {
     final schedule = weeklySchedule[dayKey]!;
@@ -57,10 +59,10 @@ Widget buildDaythirdSchedule(String dayKey, Map<String, List<Map<String, dynamic
         final isrunningclass = isCurrentDay && isCurrentTimeInRange;
         final String subjects = scheduleItem['subject'];
 
-        // Check if the section is present in the JSON, otherwise use a default value
-        final String section1Value = json.containsKey(section1) ? json[section1][subjects] ?? '' : '';
-        final String section2Value = json.containsKey(section2) ? json[section2][subjects] ?? '' : '';
-        final String section3Value = json.containsKey(section3) ? json[section3][subjects] ?? '' : '';
+     
+         final String section1Value = json.containsKey("section1") ? json["section1"][subjects] ?? '' : '';
+        final String section2Value = json.containsKey("section2") ? json["section2"][subjects] ?? '' : '';
+        final String section3Value = json.containsKey("section3") ? json["section3"][subjects] ?? '' : '';
          String sectionvalue = "$section1Value$section2Value$section3Value ";
  
 
@@ -81,6 +83,7 @@ Widget buildDaythirdSchedule(String dayKey, Map<String, List<Map<String, dynamic
               Navigator.pushNamed(context, RouteManager.TeacherViewpage,arguments: {
                 "teachername":sectionvalue
               });
+              
             },
             child: ListTile(
               tileColor: Colors.black,

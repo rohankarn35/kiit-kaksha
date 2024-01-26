@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -8,8 +9,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:kiit_kaksha/Notification/notificationservice.dart';
 import 'package:kiit_kaksha/Routes/routes.dart';
+import 'package:kiit_kaksha/provider/teacherprovider.dart';
 import 'package:kiit_kaksha/widgets/builddaily.dart';
 import 'package:kiit_kaksha/widgets/buildthirdschedule.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Views extends StatefulWidget {
@@ -33,6 +36,7 @@ class Views extends StatefulWidget {
 class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   Map<String, List<Map<String, dynamic>>> weeklySchedule = {};
+  late Future<void> teacherservice;
 
   @override
   void initState() {
@@ -40,10 +44,12 @@ class _ViewsState extends State<Views> with SingleTickerProviderStateMixin {
     _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(_handleTabSelection);
     _schedulenotificationforweek();
-analytics.setAnalyticsCollectionEnabled(true);
+    analytics.setAnalyticsCollectionEnabled(true);
     // Load data from SharedPreferences
     loadWeeklySchedule();
     fetchWeeklySchedule();
+  teacherservice =  Provider.of<TeacherProvider>(context, listen: false)
+        .fetchDataAndSaveToSharedPreferences(widget.section1, widget.section2, widget.section3);
 
     // Get the current day and set the initial tab index
     final currentDayIndex = DateTime.now().weekday;
@@ -60,8 +66,8 @@ analytics.setAnalyticsCollectionEnabled(true);
       fetchDataForDay(initialDayKey);
     }
   }
-    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  
+
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   void _handleTabSelection() {
     // print("object");
@@ -177,10 +183,13 @@ analytics.setAnalyticsCollectionEnabled(true);
     }
   }
 
+ 
+
   @override
   Widget build(BuildContext context) {
-            analytics.logEvent(name: 'view_thirdyear', parameters: {'thirdyear_view': 'third_year_view'});
-
+    analytics.logEvent(
+        name: 'view_thirdyear',
+        parameters: {'thirdyear_view': 'third_year_view'});
 
     // ignore: deprecated_member_use
     return WillPopScope(
@@ -307,34 +316,37 @@ analytics.setAnalyticsCollectionEnabled(true);
                 SizedBox(
                   height: 20,
                 ),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      // buildDaySchedule("MON", weeklySchedule),
-                      // buildDaySchedule("TUE", weeklySchedule),
-                      // buildDaySchedule("WED", weeklySchedule),
-                      // buildDaySchedule("THU", weeklySchedule),
-                      // buildDaySchedule("FRI", weeklySchedule),
-                      // buildDaySchedule("SAT", weeklySchedule),
-                      // buildDaySchedule("SUN", weeklySchedule),
-                      buildDaythirdSchedule("MON", weeklySchedule,
-                          widget.section1, widget.section2, widget.section3),
-                      buildDaythirdSchedule("TUE", weeklySchedule,
-                          widget.section1, widget.section2, widget.section3),
-                      buildDaythirdSchedule("WED", weeklySchedule,
-                          widget.section1, widget.section2, widget.section3),
-
-                      buildDaythirdSchedule("THU", weeklySchedule,
-                          widget.section1, widget.section2, widget.section3),
-                      buildDaythirdSchedule("FRI", weeklySchedule,
-                          widget.section1, widget.section2, widget.section3),
-                      buildDaythirdSchedule("SAT", weeklySchedule,
-                          widget.section1, widget.section2, widget.section3),
-                      buildDaythirdSchedule("SUN", weeklySchedule,
-                          widget.section1, widget.section2, widget.section3),
-                    ],
-                  ),
+                FutureBuilder<void>(
+                  future: teacherservice,
+                 builder: (context, snapshot) {
+                   if(snapshot.connectionState == ConnectionState.waiting){
+                    return Container();
+                   }else{
+                    return Expanded(
+                    child: Consumer<TeacherProvider>(builder: (context, value, child) => TabBarView(
+                      controller: _tabController,
+                      children: [
+                        buildDaythirdSchedule("MON", weeklySchedule,value.teachersdata
+                          ),
+                        buildDaythirdSchedule("TUE", weeklySchedule,value.teachersdata
+                            ),
+                        buildDaythirdSchedule("WED", weeklySchedule,value.teachersdata
+                           ),
+                        buildDaythirdSchedule("THU", weeklySchedule,value.teachersdata
+                             ),
+                        buildDaythirdSchedule("FRI", weeklySchedule,value.teachersdata
+                             ),
+                        buildDaythirdSchedule("SAT", weeklySchedule,value.teachersdata
+                             ),
+                        buildDaythirdSchedule("SUN", weeklySchedule,value.teachersdata
+                             ),
+                      ],
+                    ),
+                    )
+                  );
+                   }
+                 },
+                
                 ),
               ],
             ),

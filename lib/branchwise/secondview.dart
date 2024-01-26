@@ -7,7 +7,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:kiit_kaksha/Notification/notificationservice.dart';
 import 'package:kiit_kaksha/Routes/routes.dart';
+import 'package:kiit_kaksha/provider/teacherprovider.dart';
 import 'package:kiit_kaksha/widgets/builddaily.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SecondYearViews extends StatefulWidget {
@@ -29,8 +31,8 @@ class _SecondYearViewsState extends State<SecondYearViews>
   late TabController _tabController;
   Map<String, List<Map<String, dynamic>>> weeklySchedule = {};
   // late SharedPreferences prefs;
-    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  late Future<void> teachersdata;
 
   @override
   void initState() {
@@ -45,12 +47,14 @@ class _SecondYearViewsState extends State<SecondYearViews>
 
     loadWeeklySchedule();
     fetchWeeklySchedule();
+    teachersdata = Provider.of<TeacherProvider>(context, listen: false)
+        .fetchDataAndSaveToSharedPreferencesSecondYear(widget.section1);
 
     final currentDayIndex = DateTime.now().weekday;
     int initialTabIndex;
 
-      initialTabIndex = currentDayIndex - 1; // Adjust for zero-based indexing
- 
+    initialTabIndex = currentDayIndex - 1; // Adjust for zero-based indexing
+
     _tabController.index = initialTabIndex;
 
     final initialDayKey = getDayKey(initialTabIndex);
@@ -117,6 +121,7 @@ class _SecondYearViewsState extends State<SecondYearViews>
     if (prefs.containsKey(dayKey)) {
       final storedData = prefs.getString(dayKey);
       if (storedData != null) {
+        print("Store ${storedData}");
         final Map<String, dynamic> data = jsonDecode(storedData);
         setState(() {
           weeklySchedule[dayKey] =
@@ -139,27 +144,24 @@ class _SecondYearViewsState extends State<SecondYearViews>
           });
 
           prefs.setString(dayKey, response.body);
-
-         
         }
-      } else if(response.statusCode == 429){
+      } else if (response.statusCode == 429) {
         ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('Too many request. Please try again later'),
-          duration: Duration(seconds: 5),
-        ),
-      );
-      }
-      
-      else {
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Too many request. Please try again later'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      } else {
         throw Exception('Failed to load schedule');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: Colors.red,
-          content: Text('An error occured, please check your internet connection or clear the app data'),
+          content: Text(
+              'An error occured, please check your internet connection or clear the app data'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -167,44 +169,46 @@ class _SecondYearViewsState extends State<SecondYearViews>
   }
 
   @override
-Widget build(BuildContext context) {
-            analytics.logEvent(name: 'view_second_year', parameters: {'view_second_year': 'view_second_year'});
+  Widget build(BuildContext context) {
+    analytics.logEvent(
+        name: 'view_second_year',
+        parameters: {'view_second_year': 'view_second_year'});
 
-  // ignore: deprecated_member_use
-  return WillPopScope(
-    onWillPop: () async {
-      bool exit = await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Exit App'),
-          content: Text('Do you want to exit the app?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: Text('No'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: Text('Yes'),
-            ),
-          ],
-        ),
-      );
+    // ignore: deprecated_member_use
+    return WillPopScope(
+      onWillPop: () async {
+        bool exit = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Exit App'),
+            content: Text('Do you want to exit the app?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text('No'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: Text('Yes'),
+              ),
+            ],
+          ),
+        );
 
-      if (exit?? false) {
-        // Exit the whole app
-        SystemNavigator.pop();
-      }
+        if (exit ?? false) {
+          // Exit the whole app
+          SystemNavigator.pop();
+        }
 
-      return false;
-    },
-    child: Scaffold(
-      backgroundColor: Colors.black38,
-      appBar: AppBar(
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black38,
+        appBar: AppBar(
           toolbarHeight: 80,
           automaticallyImplyLeading: false,
           title: Column(
@@ -237,41 +241,39 @@ Widget build(BuildContext context) {
               ),
             ],
           ),
-        actions: [
-          IconButton(
-            iconSize: 25,
-            icon: const Icon(
-              
-              Icons.info_outline_rounded,
-              color: Colors.white,
-            ), // Change the icon as needed
-            onPressed: () {
-
-             Navigator.pushNamed(context, RouteManager.SecondYearabout,arguments: {
-              "schedule": weeklySchedule,
-             });
-            },
-          ),
-        ],
-        elevation: 0,
-        backgroundColor: Colors.black38,
-        shadowColor: Colors.black,
-        // Set the app bar color
-      ),
-      body: Container(
-        padding: const EdgeInsets.only(top: 10),
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        child: DefaultTabController(
-          length: 7,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.start,
-            
-            children: [
-              // SizedBox(height: 10,),
-              TabBar(
-                // physics: BouncingScrollPhysics(),
+          actions: [
+            IconButton(
+              iconSize: 25,
+              icon: const Icon(
+                Icons.info_outline_rounded,
+                color: Colors.white,
+              ), // Change the icon as needed
+              onPressed: () {
+                Navigator.pushNamed(context, RouteManager.SecondYearabout,
+                    arguments: {
+                      "schedule": weeklySchedule,
+                    });
+              },
+            ),
+          ],
+          elevation: 0,
+          backgroundColor: Colors.black38,
+          shadowColor: Colors.black,
+          // Set the app bar color
+        ),
+        body: Container(
+          padding: const EdgeInsets.only(top: 10),
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: DefaultTabController(
+            length: 7,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                // SizedBox(height: 10,),
+                TabBar(
+                  // physics: BouncingScrollPhysics(),
                   // indicatorPadding: EdgeInsets.zero,
                   dividerColor: Colors.black,
                   labelStyle:
@@ -291,30 +293,47 @@ Widget build(BuildContext context) {
                   tabAlignment: TabAlignment.center,
                   labelColor: Colors.white,
                   unselectedLabelStyle: TextStyle(fontSize: 20),
-                //  labelPadding: EdgeInsets.symmetric(horizontal: 0),
-              ),
-              SizedBox(height: 20,),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  
-                  children: [
-                    buildDaySchedule("MON",weeklySchedule,widget.section1),
-                    buildDaySchedule("TUE",weeklySchedule,widget.section1),
-                    buildDaySchedule("WED",weeklySchedule,widget.section1),
-                    buildDaySchedule("THU",weeklySchedule,widget.section1),
-                    buildDaySchedule("FRI",weeklySchedule,widget.section1),
-                    buildDaySchedule("SAT",weeklySchedule,widget.section1),
-                    buildDaySchedule("SUN",weeklySchedule,widget.section1),
-
-                  ],
+                  //  labelPadding: EdgeInsets.symmetric(horizontal: 0),
                 ),
-              ),
-            ],
+                SizedBox(
+                  height: 20,
+                ),
+                FutureBuilder(
+                  future: teachersdata,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container();
+                    } else {
+                      return Expanded(
+                          child: Consumer<TeacherProvider>(
+                        builder: (context, value, child) => TabBarView(
+                          controller: _tabController,
+                          children: [
+                            buildDaySchedule("MON", weeklySchedule,
+                                value.teacherdatasecond!),
+                            buildDaySchedule("TUE", weeklySchedule,
+                                value.teacherdatasecond!),
+                            buildDaySchedule("WED", weeklySchedule,
+                                value.teacherdatasecond!),
+                            buildDaySchedule("THU", weeklySchedule,
+                                value.teacherdatasecond!),
+                            buildDaySchedule("FRI", weeklySchedule,
+                                value.teacherdatasecond!),
+                            buildDaySchedule("SAT", weeklySchedule,
+                                value.teacherdatasecond!),
+                            buildDaySchedule("SUN", weeklySchedule,
+                                value.teacherdatasecond!),
+                          ],
+                        ),
+                      ));
+                    }
+                  },
+                )
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
-    }

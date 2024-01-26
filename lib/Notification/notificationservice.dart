@@ -44,10 +44,7 @@ void shownotification(Map<String, List<Map<String, dynamic>>> scheduleDay,
           );
           final currentDayIndex = DateTime.now().weekday;
 
-            
           final String dayKey = getDayKey(currentDayIndex - 1);
-        
-          
 
           print(currentDayIndex);
           print(dayKey);
@@ -95,12 +92,11 @@ void shownotification(Map<String, List<Map<String, dynamic>>> scheduleDay,
               )
                   .then((value) {
 // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Notification Scheduled for $subjectName at $notificationTime")));
-print("Notification scheuled $subjectName at $notificationTime");
+                print(
+                    "Notification scheuled $subjectName at $notificationTime");
               });
             }
           }
-
-          
         }
       }
     }
@@ -126,4 +122,31 @@ List<int> getTime(double startTime) {
   }
 
   return [startHour, startMinute];
+}
+
+
+void showfirebasenotificaation(String? title, String? body){
+
+  try {
+      AndroidNotificationDetails androidDetails =
+              AndroidNotificationDetails(
+            "Holiday Notification",
+            "Holiday Notice",
+            priority: Priority.max,
+            importance: Importance.max,
+            enableVibration: true,
+            vibrationPattern: Int64List.fromList([500, 200, 500, 200, 500]),
+          );
+          NotificationDetails notificationDetails = NotificationDetails(
+            android: androidDetails,
+          );
+          DateTime nowdate = DateTime.now();
+
+          notificationsPlugin.show(nowdate.year, title, body, notificationDetails);
+    
+  } catch (e) {
+    print(e);
+    
+  }
+
 }

@@ -1,11 +1,11 @@
 
 import 'package:flutter/material.dart';
-import 'package:kiit_kaksha/about.dart';
+import 'package:kiit_kaksha/thirdyear/third_year_about.dart';
 import 'package:kiit_kaksha/branchwise/secondyear.dart';
 import 'package:kiit_kaksha/branchwise/secondyearabout.dart';
 import 'package:kiit_kaksha/branchwise/thirdyear.dart';
-import 'package:kiit_kaksha/list.dart';
-import 'package:kiit_kaksha/splashscreen.dart';
+import 'package:kiit_kaksha/thirdyear/third_year_view.dart';
+import 'package:kiit_kaksha/SplashScreen/splashscreen.dart';
 import 'package:kiit_kaksha/widgets/teacherview.dart';
 
 class RouteManager {
